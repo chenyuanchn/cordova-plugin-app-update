@@ -1,6 +1,5 @@
 package com.cordova.appUpdate;
 
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -90,69 +89,8 @@ public class UpdateManager {
 
 	private IntentFilter intentFilter = null;
 	protected static final String LOG_TAG = "UpdateApp";
-	
-	private Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case TS:
-				Toast toast = Toast.makeText(mContext, "已经是最新版本",
-						Toast.LENGTH_LONG);
-				toast.setGravity(Gravity.CENTER, 0, 0);
-				toast.show();
-				break;
-			case TS2:
-				Toast toast2 = Toast.makeText(mContext, "超时，请检查网络连接!",
-						Toast.LENGTH_LONG);
-				toast2.setGravity(Gravity.CENTER, 0, 0);
-				toast2.show();
-				break;
-			// 正在下载
-			case DOWNLOAD:
-				// 设置进度条位置
-				// contentView.setTextViewText(R.id.notificationPercent,
-				// progress + "%");
-				// contentView.setProgressBar(R.id.notificationProgress, 100,
-				// progress, false);
-				// notificationManager.notify(0, notification);
 
-				break;
-			case DOWNLOAD_FINISH:
-				// 安装文件
-				// 下载完成，点击安装
-
-				File apkfile = new File(mSavePath, mHashMap.get("name"));
-				if (!apkfile.exists()) {
-					return;
-				}
-				// 通过Intent安装APK文件
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				intent.setDataAndType(
-						Uri.parse("file://" + apkfile.toString()),
-						"application/vnd.android.package-archive");
-
-				pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
-						0);
-
-				notification.setLatestEventInfo(mContext, mHashMap.get("name"), "下载成功，点击安装",
-						pendingIntent);
-				notification.flags |= Notification.FLAG_AUTO_CANCEL; // 点击清除按钮或点击通知后会自动消失
-				notificationManager.notify(0, notification);
-
-				// notificationManager.cancel(0);
-				// contentView.setTextViewText(R.id.notificationPercent,
-				// "100%");
-				// contentView.setProgressBar(R.id.notificationProgress, 100,
-				// progress, false);
-				// contentView.setTextViewText(R.id.notificationTitle, "下载完成");
-				// notificationManager.notify(0, notification);
-				// installApk();
-				break;
-			default:
-				break;
-			}
-		}
-	};
+	private Handler mHandler;
 
 	public UpdateManager(CordovaInterface cordova, String updateUrl) {
 		this.cordova = cordova;
@@ -161,6 +99,71 @@ public class UpdateManager {
 		package_name = mContext.getPackageName();
 		resources = mContext.getResources();
 		initButtonReceiver();
+		mHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case TS:
+					Toast toast = Toast.makeText(mContext, "已经是最新版本",
+							Toast.LENGTH_LONG);
+					toast.setGravity(Gravity.CENTER, 0, 0);
+					toast.show();
+					break;
+				case TS2:
+					Toast toast2 = Toast.makeText(mContext, "超时，请检查网络连接!",
+							Toast.LENGTH_LONG);
+					toast2.setGravity(Gravity.CENTER, 0, 0);
+					toast2.show();
+					break;
+				// 正在下载
+				case DOWNLOAD:
+					// 设置进度条位置
+					// contentView.setTextViewText(R.id.notificationPercent,
+					// progress + "%");
+					// contentView.setProgressBar(R.id.notificationProgress,
+					// 100,
+					// progress, false);
+					// notificationManager.notify(0, notification);
+
+					break;
+				case DOWNLOAD_FINISH:
+					// 安装文件
+					// 下载完成，点击安装
+
+					File apkfile = new File(mSavePath, mHashMap.get("name"));
+					if (!apkfile.exists()) {
+						return;
+					}
+					// 通过Intent安装APK文件
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.setDataAndType(
+							Uri.parse("file://" + apkfile.toString()),
+							"application/vnd.android.package-archive");
+
+					pendingIntent = PendingIntent.getActivity(mContext, 0,
+							intent, 0);
+
+					notification.setLatestEventInfo(mContext,
+							mHashMap.get("name"), "下载成功，点击安装", pendingIntent);
+					notification.flags |= Notification.FLAG_AUTO_CANCEL; // 点击清除按钮或点击通知后会自动消失
+					notificationManager.notify(0, notification);
+
+					// notificationManager.cancel(0);
+					// contentView.setTextViewText(R.id.notificationPercent,
+					// "100%");
+					// contentView.setProgressBar(R.id.notificationProgress,
+					// 100,
+					// progress, false);
+					// contentView.setTextViewText(R.id.notificationTitle,
+					// "下载完成");
+					// notificationManager.notify(0, notification);
+					// installApk();
+					break;
+				default:
+					break;
+				}
+			}
+		};
 	}
 
 	/** 带按钮的通知栏点击广播接收 */
@@ -295,38 +298,43 @@ public class UpdateManager {
 	 * 显示软件更新对话框
 	 */
 	private void showNoticeDialog() {
-		String titleTemp = "软件更新";
-		String descriptionTemp = "检测到最新版本，请及时更新！";
-		if (null != mHashMap && null != mHashMap.get("title")) {
-			titleTemp = mHashMap.get("title");
-		}
-		if (null != mHashMap && null != mHashMap.get("description")) {
-			descriptionTemp = mHashMap.get("description");
-		}
+		Runnable runnable = new Runnable() {
+			public void run() {
+				String titleTemp = "软件更新";
+				String descriptionTemp = "检测到最新版本，请及时更新！";
+				if (null != mHashMap && null != mHashMap.get("title")) {
+					titleTemp = mHashMap.get("title");
+				}
+				if (null != mHashMap && null != mHashMap.get("description")) {
+					descriptionTemp = mHashMap.get("description");
+				}
 
-		// 构造对话框
-		AlertDialog.Builder builder = new Builder(mContext);
-		builder.setTitle(titleTemp);
-		// builder.setMessage(getString("soft_update_info")/*R.string.soft_update_info*/);
-		builder.setMessage(descriptionTemp);// 从xml取出描述
-		// 稍后更新
-		builder.setNegativeButton("以后再说", new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
+				// 构造对话框
+				AlertDialog.Builder builder = new Builder(mContext);
+				builder.setTitle(titleTemp);
+				// builder.setMessage(getString("soft_update_info")/*R.string.soft_update_info*/);
+				builder.setMessage(descriptionTemp);// 从xml取出描述
+				// 稍后更新
+				builder.setNegativeButton("以后再说", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				// 更新
+				builder.setPositiveButton("马上更新", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+						// 显示下载对话框
+						showDownloadDialog();
+					}
+				});
+				Dialog noticeDialog = builder.create();
+				noticeDialog.show();
 			}
-		});
-		// 更新
-		builder.setPositiveButton("马上更新", new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				// 显示下载对话框
-				showDownloadDialog();
-			}
-		});
-		Dialog noticeDialog = builder.create();
-		noticeDialog.show();
+		};
+		this.cordova.getActivity().runOnUiThread(runnable);
 	}
 
 	/**
@@ -370,7 +378,8 @@ public class UpdateManager {
 
 		contentView = new RemoteViews(mContext.getPackageName(),
 				R.layout.notification_item);
-		contentView.setTextViewText(R.id.notificationTitle, mHashMap.get("name"));
+		contentView.setTextViewText(R.id.notificationTitle,
+				mHashMap.get("name"));
 		contentView.setTextViewText(R.id.notificationPercent, "0%");
 		contentView.setProgressBar(R.id.notificationProgress, 100, 0, false);
 
