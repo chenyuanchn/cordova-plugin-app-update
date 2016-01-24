@@ -13,11 +13,7 @@
 
 ###Cordova/Phonegap 安装 （仅支持Android）
 
- 1. 将cordova-plugin-app-update插件放在本地目录,将这个目录标记为`$PLUGIN_DIR`
-
- 2. 添加插件: 
-
-		cordova plugin add $PLUGIN_DIR
+   cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
 ### 支持平台
 
 		Android only
