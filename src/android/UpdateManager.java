@@ -14,12 +14,17 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -315,14 +320,55 @@ public class UpdateManager {
 				// builder.setMessage(getString("soft_update_info")/*R.string.soft_update_info*/);
 				builder.setMessage(descriptionTemp);// 从xml取出描述
 				// 稍后更新
-				builder.setNegativeButton("以后再说", new OnClickListener() {
+				builder.setPositiveButton("以后再说", new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
 					}
 				});
 				// 更新
-				builder.setPositiveButton("马上更新", new OnClickListener() {
+				builder.setNegativeButton("马上更新", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+						ConnectivityManager connManager = (ConnectivityManager) mContext
+								.getSystemService(mContext.CONNECTIVITY_SERVICE);
+						NetworkInfo mWifi = connManager
+								.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+						if (!mWifi.isConnected()) {
+							showWifiDialog();
+						} else {
+							// 显示下载对话框
+							showDownloadDialog();
+						}
+					}
+				});
+				Dialog noticeDialog = builder.create();
+				noticeDialog.show();
+			}
+		};
+		this.cordova.getActivity().runOnUiThread(runnable);
+	}
+
+	/**
+	 * 显示软件更新对话框
+	 */
+	private void showWifiDialog() {
+		Runnable runnable = new Runnable() {
+			public void run() {
+				// 构造对话框
+				AlertDialog.Builder builder = new Builder(mContext);
+				builder.setTitle("未连接wifi");
+				builder.setMessage("请连接wifi进行更新下载");
+				// 稍后更新
+				builder.setPositiveButton("以后再说", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				// 更新
+				builder.setNegativeButton("土豪不在乎", new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.dismiss();
@@ -342,30 +388,22 @@ public class UpdateManager {
 	 */
 	private void showDownloadDialog() {
 
-		// 构造软件下载对话框
-		// AlertDialog.Builder builder = new Builder(mContext);
-		// builder.setTitle(getString("soft_updating")/*R.string.soft_updating*/);
-		// // 给下载对话框增加进度条
-		// final LayoutInflater inflater = LayoutInflater.from(mContext);
-		// View v =
-		// inflater.inflate(getLayout("appupdate_progress")/*R.layout.appupdate_progress*/,
-		// null);
-		//
-		// mProgress = (ProgressBar)
-		// v.findViewById(getId("update_progress")/*R.id.update_progress*/);
-		// builder.setView(v);
-		// // 取消更新
-		// builder.setNegativeButton(getString("soft_update_cancel")/*R.string.soft_update_cancel*/,
-		// new OnClickListener() {
-		// @Override
-		// public void onClick(DialogInterface dialog, int which) {
-		// dialog.dismiss();
-		// // 设置取消状态
-		// cancelUpdate = true;
-		// }
-		// });
-		// mDownloadDialog = builder.create();
-		// mDownloadDialog.show();
+		/*
+		 * // 构造软件下载对话框 AlertDialog.Builder builder = new Builder(mContext);
+		 * builder.setTitle("更新"); // 给下载对话框增加进度条 final LayoutInflater inflater
+		 * = LayoutInflater.from(mContext); View v =
+		 * inflater.inflate(getLayout("appupdate_progress"
+		 * )R.layout.appupdate_progress, null);
+		 * 
+		 * ProgressBar mProgress = (ProgressBar)
+		 * v.findViewById(getId("update_progress")R.id.update_progress);
+		 * builder.setView(v); // 取消更新 builder.setNegativeButton("取消", new
+		 * OnClickListener() {
+		 * 
+		 * @Override public void onClick(DialogInterface dialog, int which) {
+		 * dialog.dismiss(); // 设置取消状态 // cancelUpdate = true; } }); AlertDialog
+		 * mDownloadDialog = builder.create(); mDownloadDialog.show();
+		 */
 
 		notificationManager = (NotificationManager) mContext
 				.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -413,115 +451,206 @@ public class UpdateManager {
 	 */
 	private void downloadApk() {
 		// 启动新线程下载软件
-		new Thread(new DownloadApkThread()).start();
+//		new Thread(new DownloadApkThread()).start();
+		
+		Runnable runnable = new Runnable() {
+			public void run() {
+				try {
+					// 获得存储卡的路径
+					String sdpath = getDiskCacheDir(mContext) + "/";
+					mSavePath = sdpath + "download";
+
+					URL url = new URL(mHashMap.get("url"));
+					// 创建连接
+					conn = null;
+					conn = (HttpURLConnection) url.openConnection();
+					conn.connect();
+					// 获取文件大小
+					int length = conn.getContentLength();
+					// 创建输入流
+					is = null;
+					is = conn.getInputStream();
+
+					File file = new File(mSavePath);
+					// 判断文件目录是否存在
+					if (!file.exists()) {
+						file.mkdir();
+					}
+
+					File apkFile = new File(mSavePath, mHashMap.get("name"));
+					fos = null;
+					fos = new FileOutputStream(apkFile);
+					int count = 0;
+					// 缓存
+					byte buf[] = new byte[1024];
+					// 写入到文件中
+					// do {
+					int readsize = 0;
+					int downloadCount = 0;// 已经下载好的大小
+					int updateCount = 0;// 已经上传的文件大小
+					int down_step = 1;// 提示step
+					while (((readsize = is.read(buf)) != -1) && !runFlag) {
+						// 写入文件
+						fos.write(buf, 0, readsize);
+						downloadCount += readsize;
+
+						/**
+						 * 每次增长2%
+						 */
+						if (updateCount == 0
+								|| (downloadCount * 100 / length - down_step) >= updateCount) {
+							updateCount += down_step;
+							// 改变通知栏
+							// notification.setLatestEventInfo(this, "正在下载...",
+							// updateCount
+							// + "%" + "", pendingIntent);
+							contentView.setTextViewText(R.id.notificationPercent,
+									updateCount + "%");
+							contentView.setProgressBar(R.id.notificationProgress,
+									100, updateCount, false);
+							// show_view
+							notificationManager.notify(0, notification);
+
+						}
+
+						// // 计算进度条位置
+						// progress = (int) (((float) count / length) * 100);
+						// // 更新进度
+						// mHandler.sendEmptyMessage(DOWNLOAD);
+						// if (readsize <= 0) {
+						// // 下载完成
+						//
+						// mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
+						// break;
+						// }
+
+					}
+					if (conn != null) {
+						conn.disconnect();
+					}
+
+					fos.close();
+					is.close();
+					// }
+					if (!runFlag) {
+						mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
+					}
+				} catch (MalformedURLException e) {
+					Log.e(LOG_TAG, "下载文件线程中 MalformedURL异常：" + e.toString());
+				} catch (IOException e) {
+					Log.e(LOG_TAG, "下载文件线程中 IO异常：" + e.toString());
+				}
+				// 取消下载对话框显示
+				// mDownloadDialog.dismiss();
+			}
+		};
+		this.cordova.getThreadPool().execute(runnable);
 	}
 
 	/**
 	 * 下载文件线程
 	 */
-	private class DownloadApkThread implements Runnable {
+//	private class DownloadApkThread implements Runnable {
+//
+//		@Override
+//		public void run() {
+//			try {
+//				// 获得存储卡的路径
+//				String sdpath = getDiskCacheDir(mContext) + "/";
+//				mSavePath = sdpath + "download";
+//
+//				URL url = new URL(mHashMap.get("url"));
+//				// 创建连接
+//				conn = null;
+//				conn = (HttpURLConnection) url.openConnection();
+//				conn.connect();
+//				// 获取文件大小
+//				int length = conn.getContentLength();
+//				// 创建输入流
+//				is = null;
+//				is = conn.getInputStream();
+//
+//				File file = new File(mSavePath);
+//				// 判断文件目录是否存在
+//				if (!file.exists()) {
+//					file.mkdir();
+//				}
+//
+//				File apkFile = new File(mSavePath, mHashMap.get("name"));
+//				fos = null;
+//				fos = new FileOutputStream(apkFile);
+//				int count = 0;
+//				// 缓存
+//				byte buf[] = new byte[1024];
+//				// 写入到文件中
+//				// do {
+//				int readsize = 0;
+//				int downloadCount = 0;// 已经下载好的大小
+//				int updateCount = 0;// 已经上传的文件大小
+//				int down_step = 2;// 提示step
+//				while (((readsize = is.read(buf)) != -1) && !runFlag) {
+//					// 写入文件
+//					fos.write(buf, 0, readsize);
+//					downloadCount += readsize;
+//
+//					/**
+//					 * 每次增长2%
+//					 */
+//					if (updateCount == 0
+//							|| (downloadCount * 100 / length - down_step) >= updateCount) {
+//						updateCount += down_step;
+//						// 改变通知栏
+//						// notification.setLatestEventInfo(this, "正在下载...",
+//						// updateCount
+//						// + "%" + "", pendingIntent);
+//						contentView.setTextViewText(R.id.notificationPercent,
+//								updateCount + "%");
+//						contentView.setProgressBar(R.id.notificationProgress,
+//								100, updateCount, false);
+//						// show_view
+//						notificationManager.notify(0, notification);
+//
+//					}
+//
+//					// // 计算进度条位置
+//					// progress = (int) (((float) count / length) * 100);
+//					// // 更新进度
+//					// mHandler.sendEmptyMessage(DOWNLOAD);
+//					// if (readsize <= 0) {
+//					// // 下载完成
+//					//
+//					// mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
+//					// break;
+//					// }
+//
+//				}
+//				if (conn != null) {
+//					conn.disconnect();
+//				}
+//
+//				fos.close();
+//				is.close();
+//				// }
+//				if (!runFlag) {
+//					mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
+//				}
+//			} catch (MalformedURLException e) {
+//				Log.e(LOG_TAG, "下载文件线程中 MalformedURL异常：" + e.toString());
+//			} catch (IOException e) {
+//				Log.e(LOG_TAG, "下载文件线程中 IO异常：" + e.toString());
+//			}
+//			// 取消下载对话框显示
+//			// mDownloadDialog.dismiss();
+//		}
+//	}
 
-		@Override
-		public void run() {
-			try {
-				// 获得存储卡的路径
-				String sdpath = getDiskCacheDir(mContext) + "/";
-				mSavePath = sdpath + "download";
-
-				URL url = new URL(mHashMap.get("url"));
-				// 创建连接
-				conn = null;
-				conn = (HttpURLConnection) url.openConnection();
-				conn.connect();
-				// 获取文件大小
-				int length = conn.getContentLength();
-				// 创建输入流
-				is = null;
-				is = conn.getInputStream();
-
-				File file = new File(mSavePath);
-				// 判断文件目录是否存在
-				if (!file.exists()) {
-					file.mkdir();
-				}
-
-				File apkFile = new File(mSavePath, mHashMap.get("name"));
-				fos = null;
-				fos = new FileOutputStream(apkFile);
-				int count = 0;
-				// 缓存
-				byte buf[] = new byte[1024];
-				// 写入到文件中
-				// do {
-				int readsize = 0;
-				int downloadCount = 0;// 已经下载好的大小
-				int updateCount = 0;// 已经上传的文件大小
-				int down_step = 2;// 提示step
-				while (((readsize = is.read(buf)) != -1) && !runFlag) {
-					// 写入文件
-					fos.write(buf, 0, readsize);
-					downloadCount += readsize;
-
-					/**
-					 * 每次增长2%
-					 */
-					if (updateCount == 0
-							|| (downloadCount * 100 / length - down_step) >= updateCount) {
-						updateCount += down_step;
-						// 改变通知栏
-						// notification.setLatestEventInfo(this, "正在下载...",
-						// updateCount
-						// + "%" + "", pendingIntent);
-						contentView.setTextViewText(R.id.notificationPercent,
-								updateCount + "%");
-						contentView.setProgressBar(R.id.notificationProgress,
-								100, updateCount, false);
-						// show_view
-						notificationManager.notify(0, notification);
-
-					}
-
-					// // 计算进度条位置
-					// progress = (int) (((float) count / length) * 100);
-					// // 更新进度
-					// mHandler.sendEmptyMessage(DOWNLOAD);
-					// if (readsize <= 0) {
-					// // 下载完成
-					//
-					// mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
-					// break;
-					// }
-
-				}
-				if (conn != null) {
-					conn.disconnect();
-				}
-
-				fos.close();
-				is.close();
-				// }
-				if (!runFlag) {
-					mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
-				}
-			} catch (MalformedURLException e) {
-				Log.e(LOG_TAG, "下载文件线程中 MalformedURL异常：" + e.toString());
-			} catch (IOException e) {
-				Log.e(LOG_TAG, "下载文件线程中 IO异常：" + e.toString());
-			}
-			// 取消下载对话框显示
-			// mDownloadDialog.dismiss();
-		}
+	private int getId(String name) {
+		return resources.getIdentifier(name, "id", package_name);
 	}
 
-	// private int getId(String name) {
-	// return resources.getIdentifier(name, "id", package_name);
-	// }
-	// private int getString(String name) {
-	// return resources.getIdentifier(name, "string", package_name);
-	// }
-	// private int getLayout(String name) {
-	// return resources.getIdentifier(name, "layout", package_name);
-	// }
+	private int getLayout(String name) {
+		return resources.getIdentifier(name, "layout", package_name);
+	}
 
 	/**
 	 * 安装APK文件
