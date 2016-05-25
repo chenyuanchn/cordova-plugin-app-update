@@ -28,8 +28,8 @@ import android.widget.ProgressBar;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.xc.sep.mobile.MainActivity;
-import com.xc.sep.mobile.R;
+import com.xc.newsmobile.MainActivity;
+import com.xc.newsmobile.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -148,10 +148,25 @@ public class UpdateManager {
 					pendingIntent = PendingIntent.getActivity(mContext, 0,
 							intent, 0);
 
-					notification.setLatestEventInfo(mContext,
-							mHashMap.get("name"), "下载成功，点击安装", pendingIntent);
-					notification.flags |= Notification.FLAG_AUTO_CANCEL; // 点击清除按钮或点击通知后会自动消失
-					notificationManager.notify(0, notification);
+					Notification.Builder builder1 = new Notification.Builder(mContext);
+					builder1.setSmallIcon(R.drawable.icon); //设置图标
+//					builder1.setTicker("显示第二个通知"); 
+					builder1.setContentTitle(mHashMap.get("name")); //设置标题
+					builder1.setContentText("下载成功，点击安装"); //消息内容
+//					builder1.setWhen(System.currentTimeMillis()); //发送时间
+					builder1.setDefaults(Notification.DEFAULT_ALL); //设置默认的提示音，振动方式，灯光
+					builder1.setAutoCancel(true);//打开程序后图标消失
+//					Intent intent =new Intent (MainActivity.this,Center.class);
+//					PendingIntent pendingIntent =PendingIntent.getActivity(MainActivity.this, 0, intent, 0);
+					builder1.setContentIntent(pendingIntent);
+					Notification notification1 = builder1.build();
+					notification1.flags |= Notification.FLAG_AUTO_CANCEL; // 点击清除按钮或点击通知后会自动消失
+					notificationManager.notify(0, notification1); // 通过通知管理器发送通知
+					
+//					notification.setLatestEventInfo(mContext,
+//							mHashMap.get("name"), "下载成功，点击安装", pendingIntent);
+//					notification.flags |= Notification.FLAG_AUTO_CANCEL; // 点击清除按钮或点击通知后会自动消失
+//					notificationManager.notify(0, notification);
 
 					// notificationManager.cancel(0);
 					// contentView.setTextViewText(R.id.notificationPercent,
@@ -214,6 +229,7 @@ public class UpdateManager {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				int serverInt = getServerVerInfo();
+				Log.e(LOG_TAG, " &&&&&&&&&&&&&&&serverInt ：" + serverInt);		
 				if (serverInt > 0) {
 					int currentVerCode = getCurrentVerCode();
 					if (serverInt > currentVerCode) {
@@ -241,8 +257,10 @@ public class UpdateManager {
 		int versionCode = 0;
 		try {
 			// 获取软件版本号，对应AndroidManifest.xml下android:versionCode
+			Log.e(LOG_TAG, " &&&&&&&&&&&&&&&package_name ：" + package_name);
 			versionCode = mContext.getPackageManager().getPackageInfo(
 					package_name, 0).versionCode;
+			Log.e(LOG_TAG, " &&&&&&&&&&&&&&&versionCode ：" + versionCode);		
 		} catch (NameNotFoundException e) {
 			Log.e(LOG_TAG, "获取应用当前版本代码versionCode异常：" + e.toString());
 		}
@@ -263,6 +281,7 @@ public class UpdateManager {
 		}
 		if (null != mHashMap && null != mHashMap.get("version")) {
 			versionCodeRemote = Integer.valueOf(mHashMap.get("version"));
+			Log.e(LOG_TAG, " &&&&&&&&&&&&&&&versionCodeRemote ：" + versionCodeRemote);		
 		}
 		return versionCodeRemote;
 	}
