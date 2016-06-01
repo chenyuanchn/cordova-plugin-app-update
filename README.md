@@ -41,5 +41,5 @@
 3.js调用插件方法
 ```js
 var updateUrl = "http://xxx.xxx.xxx.xxx/version.xml";
-cordova.plugins.AppUpdate.checkAppUpdate(updateUrl,function(e) {}, function(e) {});
+cordova.plugins.AppUpdate.checkAppUpdate(updateUrl,function(e){},function(e){});
 ```
