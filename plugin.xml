@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="cordova-plugin-app-update"
-    version="0.0.1">
+    version="0.0.2">
     <name>AppUpdate</name>
  
     <js-module src="www/AppUpdate.js" name="AppUpdate">
-        <clobbers target="AppUpdate" />
+     		<clobbers target="cordova.plugins.AppUpdate" />
     </js-module>
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
@@ -18,7 +18,6 @@
             <uses-permission android:name="android.permission.INTERNET" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
             <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
-            <uses-permission android:name="android.permission.RECORD_AUDIO" />
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
             <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
             <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />

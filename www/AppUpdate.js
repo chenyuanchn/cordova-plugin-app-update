@@ -1,19 +1,8 @@
-var cordova = require('cordova'),exec = require('cordova/exec');
+var exec = require('cordova/exec');
 
-var AppUpdate = function() {
+exports.checkAppUpdate = function(updateUrl, success, error) {
+    exec(success, error, "AppUpdate", "checkAppUpdate", [updateUrl]);
 };
 
-AppUpdate.prototype = {
-		
-		checkAppUpdate : function(success, error, updateUrl) {
-			updateUrl = updateUrl ? [updateUrl] : [];
-			exec(success, error, 'AppUpdate', 'checkAppUpdate', updateUrl);
-		}		
-}
 
-        
-        
-        
-var appUpdate = new AppUpdate();
-module.exports = appUpdate;
 
