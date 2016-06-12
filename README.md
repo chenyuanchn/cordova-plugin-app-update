@@ -1,16 +1,14 @@
 ## cordova-plugin-app-update ##
 
-###感谢
-		本代码是根据south-pacific/cordova-plugin-updateapp和vaenow/cordova-plugin-app-update的插件进行的修改
-		有更新需要的同学直接调用这两个插件，本插件仅测试
-		主要功能是：进行检查更新时从服务器读取version.xml 进行版本检查，
-		更新时下载ftp上的apk文件，下载时通知栏进度条，下载完成后点击通知栏安装
+###主要功能
+
+ - 进行检查更新时从服务器读取version.xml 进行版本检查，
+ 	 更新时下载ftp上的apk文件，下载时通知栏进度条，下载完成后点击通知栏安装
 	
 ###准备工作
 
  - 这里我默认环境已经安装完毕，只需要进行插件安装即可
 		
-
 ###Cordova/Phonegap 安装 （仅支持Android）
 
    cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
