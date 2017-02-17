@@ -41,3 +41,4 @@
 var updateUrl = "http://xxx.xxx.xxx.xxx/version.xml";
 cordova.plugins.AppUpdate.checkAppUpdate(updateUrl,function(e){},function(e){});
 ```
+### testgitlab
