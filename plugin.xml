@@ -27,5 +27,7 @@
            <source-file src="src/android/ParseXmlService.java" target-dir="src/com/cordova/appUpdate"/>
            <source-file src="src/android/UpdateManager.java" target-dir="src/com/cordova/appUpdate"/>
            <source-file src="res/layout/notification_item.xml" target-dir="res/layout"/>
+
+	   			 <hook type="after_plugin_install" src="hooks/after_plugin_install/after_plugin_install.js"/>
     </platform>
 </plugin>

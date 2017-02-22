@@ -22,14 +22,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-
-import com.xc.newsmobile.MainActivity;
-import com.xc.newsmobile.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,6 +35,8 @@ import java.net.URL;
 import java.util.HashMap;
 
 import org.apache.cordova.CordovaInterface;
+
+import __ANDROID_PACKAGE__.R;
 
 public class UpdateManager {
 	/*
@@ -452,7 +448,7 @@ public class UpdateManager {
 
 		notification.contentView = contentView;
 
-		updateIntent = new Intent(mContext, MainActivity.class);
+		updateIntent = new Intent(mContext, cordova.getClass());
 		updateIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		pendingIntent = PendingIntent.getActivity(mContext, 0, updateIntent, 0);
 
