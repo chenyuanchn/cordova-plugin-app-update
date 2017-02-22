@@ -11,9 +11,7 @@
 		
 ###Cordova/Phonegap 安装 （仅支持Android）
 
-   cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
-    
-   安装完毕后修改UpdateManager的import com.xc.newsmobile.MainActivity;import com.xc.newsmobile.R;   包名改为自己项目路径
+   cordova plugin add http://114.55.92.162/chenyuan/cordova-plugin-app-update.git
    
 ### 支持平台
 
@@ -30,7 +28,7 @@
     <name>my app name</name>
     <title>新版本：0.1</title>
     <description>Test to the latest version, please update!</description>
-    <url>http://yyy.yyy.yyy.yyy/xx.apk</url>
+    <url>http://yyy.yyy.yyy.yyy/test.apk</url>
 </update>
 ```
 2.发布version.xml到http://xxx.xxx.xxx.xxx/目录下
@@ -41,4 +39,3 @@
 var updateUrl = "http://xxx.xxx.xxx.xxx/version.xml";
 cordova.plugins.AppUpdate.checkAppUpdate(updateUrl,function(e){},function(e){});
 ```
-### testgitlab
