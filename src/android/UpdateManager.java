@@ -1,4 +1,4 @@
-package com.cordova.appUpdate;
+﻿package com.cordova.appUpdate;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -145,7 +145,7 @@ public class UpdateManager {
 							intent, 0);
 
 					Notification.Builder builder1 = new Notification.Builder(mContext);
-					builder1.setSmallIcon(R.drawable.icon); //设置图标
+					builder1.setSmallIcon(R.mipmap.icon); //设置图标
 //					builder1.setTicker("显示第二个通知"); 
 					builder1.setContentTitle(mHashMap.get("name")); //设置标题
 					builder1.setContentText("下载成功，点击安装"); //消息内容
@@ -425,7 +425,7 @@ public class UpdateManager {
 		notification = new Notification();
 
 		// 设置通知栏显示内容
-		notification.icon = R.drawable.icon;// 这个图标必须要设置，不然下面那个RemoteViews不起作用.
+		notification.icon = R.mipmap.icon;// 这个图标必须要设置，不然下面那个RemoteViews不起作用.
 		// 这个参数是通知提示闪出来的值.
 		notification.tickerText = "开始下载";
 
