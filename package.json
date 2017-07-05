@@ -1,0 +1,29 @@
+{
+  "name": "cordova-plugin-app-update",
+  "version": "0.0.2",
+  "description": "update app for cordova plugin",
+  "cordova": {
+    "id": "cordova-plugin-app-update",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://114.55.92.162/chenyuan/cordova-plugin-app-update.git"
+  },
+  "keywords": [
+    "update",
+    "Cordova",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0"
+    }
+  ],
+  "author": "",
+  "license": "Apache 2.0 License"
+}
