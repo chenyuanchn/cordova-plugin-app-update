@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-app-update"
-    version="0.0.2">
-    <name>AppUpdate</name>
-    
+    version="1.0.2">
+    <name>cordova-plugin-app-update</name>
+    <description>update app for cordova plugin</description>
+    <license> Apache 2.0 </license>
+    <keywords> update,cordova,ecosystem:cordova,cordova-android</keywords>
     <repo>https://github.com/chenyuanchn/cordova-plugin-app-update.git</repo>
  
     <js-module src="www/AppUpdate.js" name="AppUpdate">
