@@ -4,7 +4,7 @@
     version="0.0.2">
     <name>AppUpdate</name>
     
-    <repo>http://114.55.92.162/chenyuan/cordova-plugin-app-update.git</repo>
+    <repo>https://github.com/chenyuanchn/cordova-plugin-app-update.git</repo>
  
     <js-module src="www/AppUpdate.js" name="AppUpdate">
      		<clobbers target="cordova.plugins.AppUpdate" />
