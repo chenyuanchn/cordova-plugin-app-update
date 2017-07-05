@@ -1,4 +1,4 @@
-﻿package com.cordova.appUpdate;
+package com.cordova.appUpdate;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
