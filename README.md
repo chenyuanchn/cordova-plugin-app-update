@@ -13,6 +13,8 @@
 
    cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
    
+   ionic3：cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git#ionic3
+   
 ### 支持平台
 
 		Android only
