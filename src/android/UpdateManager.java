@@ -173,7 +173,7 @@ public class UpdateManager {
 					// contentView.setTextViewText(R.id.notificationTitle,
 					// "下载完成");
 					// notificationManager.notify(0, notification);
-					// installApk();
+					installApk();
 					break;
 				default:
 					break;
