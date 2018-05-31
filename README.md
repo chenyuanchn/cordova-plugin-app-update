@@ -11,9 +11,7 @@
 		
 ###Cordova/Phonegap 安装 （仅支持Android）
 
-   cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
-   
-   ionic3：cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git#ionic3
+   ionic cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
    
 ### 支持平台
 
@@ -30,14 +28,13 @@
     <name>my app name</name>
     <title>新版本：0.1</title>
     <description>Test to the latest version, please update!</description>
-    <url>http://yyy.yyy.yyy.yyy/test.apk</url>
+    <url>http://aaa/test.apk</url>
 </update>
 ```
-2.发布version.xml到http://xxx.xxx.xxx.xxx/目录下
-	发布apk到http://yyy.yyy.yyy.yyy/目录下
+2.把version.xml放入对应的目录下：http://aaa/version.xml
 
 3.js调用插件方法
 ```js
-var updateUrl = "http://xxx.xxx.xxx.xxx/version.xml";
+var updateUrl = "http://aaa/version.xml";
 cordova.plugins.AppUpdate.checkAppUpdate(updateUrl,function(e){},function(e){});
 ```
