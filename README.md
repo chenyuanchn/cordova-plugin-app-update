@@ -11,7 +11,7 @@
 		
 ###Cordova/Phonegap 安装 （仅支持Android）
 
-   ionic cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
+   cordova plugin add https://github.com/chenyuanchn/cordova-plugin-app-update.git
    
 ### 支持平台
 
